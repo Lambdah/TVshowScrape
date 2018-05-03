@@ -35,4 +35,5 @@ class MuchSpider(scrapy.Spider):
                 'tv_title' : episode.xpath("./a[@class='title']/text()").extract_first(),
                 'tv_episode_number' : episode.xpath("./a[@class='ep-num']/text()").extract_first(),
                 'tv_air_date' : episode.xpath("./a[@class='airdate']/text()").extract_first(),
+                'tv_network' : 'Much'
             }
