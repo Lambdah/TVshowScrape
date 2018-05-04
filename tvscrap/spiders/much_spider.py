@@ -1,4 +1,6 @@
 import scrapy
+from scrapy.loader import ItemLoader
+from tvscrap.items import TvShowItem
 """
 This spider searches television episodes in Much
 tv_episode_number has the structure s%d%de%d%d
@@ -20,20 +22,15 @@ class MuchSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        # Get the intro of the tv show
-        tv_intro = response.xpath(".//div[@class='post-content']/p/text()").extract_first()
-        tv_name = response.xpath('.//div[@id="ShowInfo"]//img/@alt').extract_first()
-        if tv_name is None:
-            tv_name = response.xpath("//div[@id='ShowInfo']//h3/a/text()").extract_first()
-        episodes = response.xpath(".//div[@class='col-xs-12 col-sm-6 episode-item']")
-        for episode in episodes:
-            yield {
-                'tv_intro' : tv_intro,
-                'tv_name' : tv_name,
-                'tv_link' : episode.xpath("./a/@href").extract_first(),
-                'tv_img' : episode.xpath(".//img/@src").extract_first(),
-                'tv_title' : episode.xpath("./a[@class='title']/text()").extract_first(),
-                'tv_episode_number' : episode.xpath("./a[@class='ep-num']/text()").extract_first(),
-                'tv_air_date' : episode.xpath("./a[@class='airdate']/text()").extract_first(),
-                'tv_network' : 'Much'
-            }
+        tv_show_loader = ItemLoader(item = TvShowItem(), response=response)
+        tv_show_loader.add_xpath('tv_intro', ".//div[@class='post-content']/p/text()")
+        tv_show_loader.add_xpath('tv_name', './/div[@id="ShowInfo"]//img/@alt')
+        tv_show_loader.add_xpath('tv_name', ".//div[@id='ShowInfo']//h3/a/text()")
+        tv_show_loader.add_value('tv_network', 'Much')
+        episode_loader = tv_show_loader.nested_xpath(".//div[@class='col-xs-12 col-sm-6 episode-item']")
+        episode_loader.add_xpath('tv_link', './a/@href')
+        episode_loader.add_xpath('tv_img', ".//img/@src")
+        episode_loader.add_xpath('tv_title', "./a[@class='title']/text()")
+        episode_loader.add_xpath('tv_episode_number', "./a[@class='ep-num']/text()")
+        episode_loader.add_xpath('tv_air_date', "./a[@class='airdate']/text()")
+        return tv_show_loader.load_item()
