@@ -27,10 +27,11 @@ class MuchSpider(scrapy.Spider):
             tv_name = response.xpath("//div[@id='ShowInfo']//h3/a/text()").extract_first()
         episodes = response.xpath(".//div[@class='col-xs-12 col-sm-6 episode-item']")
         for episode in episodes:
+            tv_link = episode.xpath("./a/@href").extract_first()
             yield {
                 'tv_intro' : tv_intro,
                 'tv_name' : tv_name,
-                'tv_link' : episode.xpath("./a/@href").extract_first(),
+                'tv_link' : response.urljoin(tv_link),
                 'tv_img' : episode.xpath(".//img/@src").extract_first(),
                 'tv_title' : episode.xpath("./a[@class='title']/text()").extract_first(),
                 'tv_episode_number' : episode.xpath("./a[@class='ep-num']/text()").extract_first(),

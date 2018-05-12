@@ -25,10 +25,11 @@ class AdultSwimSpider(scrapy.Spider):
             if episode.xpath(".//div[@class='watch-as-logo__root episode__watchASLogo']"):
                 pass
             else:
+                tv_link = episode.xpath(".//a[@class='episode__link']/@href").extract_first()
                 yield {
                     'tv_intro' : episode.xpath(".//p[@class='episode__description']/text()").extract_first(),
                     'tv_name' : tv_name,
-                    'tv_link' : episode.xpath(".//a[@class='episode__link']/@href").extract_first(),
+                    'tv_link' : response.urljoin(tv_link),
                     'tv_img' : tv_img,
                     'tv_title' : episode.xpath(".//h4[@class='episode__title']/text()").extract_first(),
                     'tv_episode_number' : episode.xpath(".//span[@class='episode__identifier']/text()").extract(),
